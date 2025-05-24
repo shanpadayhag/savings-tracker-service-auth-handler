@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "core/action",
-  "core/service",
+  "core/repository",
   "handler/login",
   "handler/refresh_token",
 ]
