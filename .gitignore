@@ -1,3 +1,4 @@
 /target
 /.febiflow
-.env.*
+.env*
+!.env.example

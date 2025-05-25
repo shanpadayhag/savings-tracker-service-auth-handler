@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+async-trait = "0.1.88"
+febiflow = { git = "https://github.com/febiflow/framework", branch = "release/v0.1.0" }
 sqlx = { version = "0.8", features = [ "postgres", "uuid", "migrate", "macros", "runtime-tokio", "chrono" ] }
 
 dto = { path = "../dto" }

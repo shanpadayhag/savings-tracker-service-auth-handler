@@ -1,7 +1,24 @@
 [workspace]
 members = [
-  "core/action", "core/config", "core/dto",
+  "core/action", "core/bootstrap",
+  "core/config",
+  "core/dto",
+  "core/error",
   "core/repository",
   "handler/login",
   "handler/refresh_token",
 ]
+
+[workspace.dependencies]
+dotenvy = "0.15.7"
+bcrypt = "0.17.0"
+febiflow = { git = "https://github.com/febiflow/framework", branch = "release/v0.1.0" }
+lambda_http = "0.14.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+uuid = { version = "1.17.0", features = ["v4", "serde"] }
+validator = { version = "0.20", features = ["derive"] }
+
+dto = { path = "core/dto" }
+repository = { path = "core/repository" }
