@@ -15,35 +15,35 @@ Globals:
     LoggingConfig:
       LogFormat: JSON
 Resources:
-  HelloWorldFunction:
+  LoginFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: HelloWorldFunction
-      Handler: helloworld.App::handleRequest
+      CodeUri: handlers/login
+      Handler: login.App::handleRequest
       Runtime: java21
       Architectures:
       - x86_64
       MemorySize: 512
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
-        Variables:
-          PARAM1: VALUE
+      SnapStart:
+        ApplyOn: "PublishedVersions"
+      AutoPublishAlias: "prod"
       Events:
-        HelloWorld:
+        Login:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /hello
-            Method: get
+            Path: /login
+            Method: post
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: Hello World Lambda Function ARN
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: Implicit IAM Role created for Hello World function
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+  LoginApi:
+    Description: API Gateway endpoint URL for Prod stage for Login function
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/login/"
+  LoginFunction:
+    Description: Login Lambda Function ARN
+    Value: !GetAtt LoginFunction.Arn
+  LoginFunctionIamRole:
+    Description: Implicit IAM Role created for Login function
+    Value: !GetAtt LoginFunctionRole.Arn

@@ -1,4 +1,4 @@
-package helloworld;
+package login;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class App implements RequestHandler<APIGatewayProxyRequestEvent, APIGatew
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
                 .withHeaders(headers);
         try {
-            final String pageContents = this.getPageContents("https://checkip.amazonaws.com");
+            final String pageContents = this.getPageContents("https://checkip.amazonaws.com").trim();
             String output = String.format("{ \"message\": \"hello world\", \"location\": \"%s\" }", pageContents);
 
             return response

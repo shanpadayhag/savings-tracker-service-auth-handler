@@ -16,6 +16,9 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
+region = "eu-central-1"
+s3_prefix = "savings-tracker-service-auth-handler"
+image_repositories = []
 
 [default.package.parameters]
 resolve_s3 = true
