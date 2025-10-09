@@ -33,12 +33,13 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-function-adapter-aws</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-function-web</artifactId>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-lambda-java-events</artifactId>
+      <version>3.16.1</version>
     </dependency>
 
     <dependency>
@@ -62,8 +63,14 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.1</version>
+        <configuration>
+          <createDependencyReducedPom>false</createDependencyReducedPom>
+          <shadedArtifactAttached>true</shadedArtifactAttached>
+          <shadedClassifierName>aws</shadedClassifierName>
+        </configuration>
       </plugin>
     </plugins>
   </build>
