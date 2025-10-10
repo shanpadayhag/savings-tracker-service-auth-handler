@@ -2,12 +2,11 @@ package api.savingstracker.authentication_service.aws;
 
 import api.savingstracker.authentication_service.annotations.PathParameter;
 import api.savingstracker.authentication_service.annotations.RequestBody;
+
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
@@ -38,37 +37,22 @@ public abstract class ApiGatewayHandler implements Function<APIGatewayProxyReque
       }
 
       return invokeMethod.invoke(this, arguments);
+    } catch (Exception exception) {
+      return createResponse(500, "Internal Server Error.");
+    }
+  }
 
+  protected APIGatewayProxyResponseEvent createResponse(int statusCode, Object body) {
+    try {
+      String responseBody = objectMapper.writeValueAsString(body);
+      return new APIGatewayProxyResponseEvent()
+          .withStatusCode(statusCode)
+          .withHeaders(Map.of("Content-Type", "application/json"))
+          .withBody(responseBody);
     } catch (Exception e) {
-      // ---- START OF NEW DEBUGGING CODE ----
-      System.err.println(">>>>>>>>> DETAILED EXCEPTION REPORT <<<<<<<<<");
-
-      Throwable cause = e;
-      // Unwrap the InvocationTargetException if it exists, to get to the real error
-      if (e instanceof java.lang.reflect.InvocationTargetException) {
-        cause = e.getCause();
-      }
-
-      StringWriter sw = new StringWriter();
-      PrintWriter pw = new PrintWriter(sw);
-      cause.printStackTrace(pw);
-
-      String stackTrace = sw.toString(); // stack trace as a string
-
-      System.err.println("Root Cause Type: " + cause.getClass().getName());
-      System.err.println("Root Cause Message: " + cause.getMessage());
-      System.err.println("Full Stack Trace:");
-      System.err.println(stackTrace);
-      System.err.println(">>>>>>>>> END OF REPORT <<<<<<<<<");
-      // ---- END OF NEW DEBUGGING CODE ----
-
-      String errorBody = String.format("{\"error\": \"Internal Server Error\", \"message\": \"%s\"}",
-          cause.getMessage());
-
       return new APIGatewayProxyResponseEvent()
           .withStatusCode(500)
-          .withHeaders(Map.of("Content-Type", "application/json"))
-          .withBody(errorBody);
+          .withBody("{\"error\": \"Failed to serialize response body.\"}");
     }
   }
 
