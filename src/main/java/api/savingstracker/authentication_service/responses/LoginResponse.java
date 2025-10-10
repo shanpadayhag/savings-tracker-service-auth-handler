@@ -1,4 +1,4 @@
 package api.savingstracker.authentication_service.responses;
 
-public record LoginResponse(String token) {
+public record LoginResponse(boolean value) {
 }
