@@ -45,9 +45,16 @@ public abstract class ApiGatewayHandler implements Function<APIGatewayProxyReque
   protected APIGatewayProxyResponseEvent createResponse(int statusCode, Object body) {
     try {
       String responseBody = objectMapper.writeValueAsString(body);
+      Map<String, String> headers = Map.of(
+        "Content-Type", "application/json",
+        "Access-Control-Allow-Origin", "*",
+        "Access-Control-Allow-Headers", "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+        "Access-Control-Allow-Methods", "OPTIONS,POST,GET,PUT,PATCH,DELETE"
+    );
+
       return new APIGatewayProxyResponseEvent()
           .withStatusCode(statusCode)
-          .withHeaders(Map.of("Content-Type", "application/json"))
+          .withHeaders(headers)
           .withBody(responseBody);
     } catch (Exception e) {
       return new APIGatewayProxyResponseEvent()
