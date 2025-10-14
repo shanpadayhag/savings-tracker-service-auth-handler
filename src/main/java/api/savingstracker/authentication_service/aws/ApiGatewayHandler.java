@@ -7,6 +7,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
@@ -14,11 +15,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 public abstract class ApiGatewayHandler implements Function<APIGatewayProxyRequestEvent, Object> {
-
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
-  public Object apply(APIGatewayProxyRequestEvent event) {
+  public ApiResponse apply(APIGatewayProxyRequestEvent event) {
     Method invokeMethod = findInvokeMethod();
 
     try {
@@ -36,21 +36,20 @@ public abstract class ApiGatewayHandler implements Function<APIGatewayProxyReque
         }
       }
 
-      return invokeMethod.invoke(this, arguments);
+      return (ApiResponse) invokeMethod.invoke(this, arguments);
     } catch (Exception exception) {
-      return createResponse(500, "Internal Server Error.");
+      System.err.println("Unhandled exception in handler: " + getRootCause(exception).getMessage());
+      return new ApiResponseBuilder(objectMapper)
+          .withStatusCode(500)
+          .withJsonBody(Map.of("error", "Internal Server Error."))
+          .build();
     }
   }
 
   protected APIGatewayProxyResponseEvent createResponse(int statusCode, Object body) {
     try {
       String responseBody = objectMapper.writeValueAsString(body);
-      Map<String, String> headers = Map.of(
-        "Content-Type", "application/json",
-        "Access-Control-Allow-Origin", "*",
-        "Access-Control-Allow-Headers", "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
-        "Access-Control-Allow-Methods", "OPTIONS,POST,GET,PUT,PATCH,DELETE"
-    );
+      Map<String, String> headers = Map.of("Content-Type", "application/json");
 
       return new APIGatewayProxyResponseEvent()
           .withStatusCode(statusCode)
@@ -81,5 +80,11 @@ public abstract class ApiGatewayHandler implements Function<APIGatewayProxyReque
     if (targetType.equals(Long.class) || targetType.equals(long.class))
       return Long.parseLong(value);
     throw new IllegalArgumentException("Unsupported parameter type for conversion: " + targetType.getName());
+  }
+
+  private Throwable getRootCause(Throwable throwable) {
+    if (throwable instanceof InvocationTargetException)
+      return throwable.getCause();
+    return throwable;
   }
 }
