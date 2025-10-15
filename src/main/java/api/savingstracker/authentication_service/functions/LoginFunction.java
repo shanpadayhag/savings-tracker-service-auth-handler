@@ -25,11 +25,15 @@ public class LoginFunction extends ApiGatewayHandler {
         try {
             authenticate(request.email(), request.password());
 
+            String accessToken = tokenService.generateAccessToken(request.email());
             String refreshToken = tokenService.generateRefreshToken(request.email());
+
+            String accessTokenCookie = cookieService.createCookie("access_token", accessToken, TimeUnit.MINUTES.toSeconds(15));
             String refreshTokenCookie = cookieService.createCookie("refresh_token", refreshToken, TimeUnit.DAYS.toSeconds(7));
 
             return responseBuilder
                 .withStatusCode(200)
+                .withCookie(accessTokenCookie)
                 .withCookie(refreshTokenCookie)
                 .withJsonBody(Map.of("status", "Login successful"))
                 .build();
