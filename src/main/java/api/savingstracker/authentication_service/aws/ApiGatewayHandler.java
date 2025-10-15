@@ -2,23 +2,24 @@ package api.savingstracker.authentication_service.aws;
 
 import api.savingstracker.authentication_service.annotations.PathParameter;
 import api.savingstracker.authentication_service.annotations.RequestBody;
+import api.savingstracker.authentication_service.annotations.RequestEvent;
 
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
-public abstract class ApiGatewayHandler implements Function<APIGatewayProxyRequestEvent, Object> {
+public abstract class ApiGatewayHandler {
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  @Override
-  public ApiResponse apply(APIGatewayProxyRequestEvent event) {
+  public ApiResponse apply(ApiGatewayEvent event) {
     Method invokeMethod = findInvokeMethod();
 
     try {
@@ -28,11 +29,28 @@ public abstract class ApiGatewayHandler implements Function<APIGatewayProxyReque
       for (int i = 0; i < parameters.length; i++) {
         Parameter param = parameters[i];
         if (param.isAnnotationPresent(RequestBody.class)) {
-          arguments[i] = objectMapper.readValue(event.getBody(), param.getType());
+          String body = event.getBody();
+          if (body == null || body.trim().isEmpty()) {
+            arguments[i] = null;
+            continue;
+          }
+
+          Map<String, String> headers = event.getHeaders() != null ? event.getHeaders() : Collections.emptyMap();
+          String contentType = headers.getOrDefault("content-type", headers.get("Content-Type")); // Case-insensitive
+
+          if (contentType != null && contentType.toLowerCase().contains("application/x-www-form-urlencoded")) {
+            Map<String, String> formData = parseUrlEncodedBody(body);
+            arguments[i] = objectMapper.convertValue(formData, param.getType());
+          } else {
+            arguments[i] = objectMapper.readValue(body, param.getType());
+          }
         } else if (param.isAnnotationPresent(PathParameter.class)) {
           String paramName = param.getAnnotation(PathParameter.class).value();
           String paramValue = event.getPathParameters().get(paramName);
           arguments[i] = convertType(paramValue, param.getType());
+        } else if (param.isAnnotationPresent(RequestEvent.class)) {
+          if (param.getType().equals(ApiGatewayEvent.class)) arguments[i] = event;
+          else throw new IllegalStateException("Parameter with @RequestEvent must be of type APIGatewayProxyRequestEvent.");
         }
       }
 
@@ -46,28 +64,36 @@ public abstract class ApiGatewayHandler implements Function<APIGatewayProxyReque
     }
   }
 
-  protected APIGatewayProxyResponseEvent createResponse(int statusCode, Object body) {
+  protected ApiResponseBuilder createResponse(int statusCode, Object body) {
     try {
-      String responseBody = objectMapper.writeValueAsString(body);
-      Map<String, String> headers = Map.of("Content-Type", "application/json");
-
-      return new APIGatewayProxyResponseEvent()
+      return new ApiResponseBuilder()
           .withStatusCode(statusCode)
-          .withHeaders(headers)
-          .withBody(responseBody);
+          .withJsonBody(body);
     } catch (Exception e) {
-      return new APIGatewayProxyResponseEvent()
+      return new ApiResponseBuilder()
           .withStatusCode(500)
-          .withBody("{\"error\": \"Failed to serialize response body.\"}");
+          .withJsonBody(Map.of("error", "Failed to serialize response body."));
     }
+  }
+
+  private Map<String, String> parseUrlEncodedBody(String body) {
+    Map<String, String> map = new HashMap<>();
+    if (body == null || body.isEmpty()) return map;
+    String[] pairs = body.split("&");
+    for (String pair : pairs) {
+      int idx = pair.indexOf("=");
+      if (idx == -1) continue;
+      String key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8);
+      String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
+      map.put(key, value);
+    }
+    return map;
   }
 
   private Method findInvokeMethod() {
     return Arrays.stream(this.getClass().getMethods())
-        .filter(method -> method.getName().equals("invoke"))
-        .findFirst()
-        .orElseThrow(
-            () -> new IllegalStateException("No 'invoke' method found in handler class " + this.getClass().getName()));
+        .filter(method -> method.getName().equals("invoke")).findFirst()
+        .orElseThrow(() -> new IllegalStateException("No 'invoke' method found in handler class " + this.getClass().getName()));
   }
 
   private Object convertType(String value, Class<?> targetType) {
