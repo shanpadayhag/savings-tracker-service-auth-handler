@@ -13,7 +13,7 @@ public class LoginFunction implements Function<APIGatewayV2HTTPEvent, APIGateway
   public APIGatewayV2HTTPResponse apply(APIGatewayV2HTTPEvent event) {
     return APIGatewayV2HTTPResponse.builder()
         .withStatusCode(200)
-        .withBody(event.toString())
+        .withBody("{\"status\":\"Login successful.\"}")
         .build();
   }
 }
