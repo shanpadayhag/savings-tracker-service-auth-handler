@@ -1,7 +1,3 @@
 spring.application.name=auth_handler
 
-spring.datasource.url=
-spring.datasource.username=
-spring.datasource.password=
-
 spring.jpa.hibernate.ddl-auto=update
