@@ -1,8 +1,8 @@
 package com.savingstracker.auth_handler.auth;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 
@@ -21,20 +21,28 @@ public class TokenService {
       .withIssuer(ISSUER)
       .build();
 
-  public String generateAccessToken(String value) {
-    return JWT.create()
+  public GeneratedTokenDto generateAccessToken(String value) {
+    final Instant expiresAt = Instant.now().plus(15, ChronoUnit.MINUTES);
+
+    String token =  JWT.create()
         .withIssuer(ISSUER)
         .withSubject(value)
-        .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(15)))
+        .withExpiresAt(expiresAt)
         .sign(ALGORITHM);
+
+    return new GeneratedTokenDto(token, expiresAt);
   }
 
-  public String generateRefreshToken(String value) {
-    return JWT.create()
+  public GeneratedTokenDto generateRefreshToken(String value) {
+    final Instant expiresAt = Instant.now().plus(7, ChronoUnit.DAYS);
+
+    String token = JWT.create()
         .withIssuer(ISSUER)
         .withSubject(value)
-        .withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)))
+        .withExpiresAt(expiresAt)
         .sign(ALGORITHM);
+
+    return new GeneratedTokenDto(token, expiresAt);
   }
 
   public Optional<String> validateToken(String token) {
