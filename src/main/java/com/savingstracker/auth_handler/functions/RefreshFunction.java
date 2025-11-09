@@ -19,21 +19,25 @@ import com.savingstracker.auth_handler.entities.RefreshToken;
 import com.savingstracker.auth_handler.entities.User;
 import com.savingstracker.auth_handler.http.CookieService;
 import com.savingstracker.auth_handler.repositories.RefreshTokenRepository;
+import com.savingstracker.auth_handler.services.RefreshTokenService;
 import com.savingstracker.auth_handler.utils.Hash;
 
 @Component("refresh")
 public class RefreshFunction extends APIGatewayHandler {
-  private final RefreshTokenRepository refreshTokenRepository;
+  private final RefreshTokenRepository repository;
   private final TokenService tokenService;
   private final CookieService cookieService;
+  private final RefreshTokenService service;
 
   public RefreshFunction(
-      RefreshTokenRepository refreshTokenRepository,
+      RefreshTokenRepository repository,
       TokenService tokenService,
-      CookieService cookieService) {
-    this.refreshTokenRepository = refreshTokenRepository;
+      CookieService cookieService,
+      RefreshTokenService service) {
+    this.repository = repository;
     this.tokenService = tokenService;
     this.cookieService = cookieService;
+    this.service = service;
   }
 
   public APIGatewayV2HTTPResponse invoke(@RequestEvent APIGatewayV2HTTPEvent event) {
@@ -48,7 +52,7 @@ public class RefreshFunction extends APIGatewayHandler {
     String refreshTokenHashed = Hash.hash(refreshToken);
     Instant now = Instant.now();
 
-    Optional<RefreshToken> validRefreshToken = refreshTokenRepository.findValidByTokenHash(
+    Optional<RefreshToken> validRefreshToken = repository.findValidByTokenHash(
         refreshTokenHashed,
         Instant.now());
 
@@ -71,10 +75,7 @@ public class RefreshFunction extends APIGatewayHandler {
     newRefreshTokenEntity.setUser(user);
     newRefreshTokenEntity.setTokenHash(newRefreshTokenHashed);
     newRefreshTokenEntity.setExpiresAt(newRefreshTokenExpiresAt);
-    refreshTokenRepository.save(newRefreshTokenEntity);
-    validRefreshTokenValue.setReplacedByTokenHash(newRefreshTokenHashed);
-    validRefreshTokenValue.setRevokedAt(Instant.now());
-    refreshTokenRepository.save(validRefreshTokenValue);
+    service.rotateTokens(validRefreshTokenValue, newRefreshTokenEntity);
 
     final GeneratedTokenDto accessToken = tokenService.generateAccessToken(user.getEmail());
     final long accessTokenMaxAge = Duration.between(now, accessToken.expiresAt()).getSeconds();

@@ -11,7 +11,7 @@
   </parent>
   <groupId>com.savingstracker</groupId>
   <artifactId>auth_handler</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>v1.0.2</version>
   <name>auth_handler</name>
   <description>Demo project for Spring Boot</description>
   <url />
