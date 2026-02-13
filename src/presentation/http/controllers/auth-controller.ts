@@ -1,7 +1,11 @@
+import { Request, Response } from "express";
+
 class AuthController {
   constructor() { }
 
-  register() { }
+  register(_request: Request, respond: Response) {
+    respond.send("This is register route");
+  }
 }
 
 export default AuthController;
