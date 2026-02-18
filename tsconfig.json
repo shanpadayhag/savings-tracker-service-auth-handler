@@ -43,7 +43,8 @@
       "@/infrastructure/*": [ "infrastructure/*" ],
       "@/presentation/*": [ "presentation/*" ],
       "@/shared/*": [ "shared/*" ],
-      "@/config/*": [ "config/* "]
+      "@/config/*": [ "config/* "],
+      "@/fixtures/*": ["../tests/fixtures/*"]
     }
   },
   "include": [ "src/**/*", "tests/**/*" ],
