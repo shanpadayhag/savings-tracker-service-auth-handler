@@ -1,10 +1,9 @@
 import IUserRepository from '@/core/repositories/user-repository';
-import db from '@/infrastructure/database/drizzle';
 import * as schema from '@/infrastructure/database/schema';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
 class UserRepository implements IUserRepository {
-  constructor(private db: NodePgDatabase<typeof schema>) { }
+  constructor(private db: PostgresJsDatabase) { }
 
   async create(user: schema.NewUser): Promise<schema.User> {
     const result = await this.db.insert(schema.users).values(user).returning();

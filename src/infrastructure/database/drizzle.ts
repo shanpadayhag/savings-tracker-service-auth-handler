@@ -1,9 +1,15 @@
-import databaseConfig from 'config/database';
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import * as schema from '@/infrastructure/database/schema';
+import database from 'config/database';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 
-const pool = new Pool(databaseConfig);
-const db = drizzle(pool, { schema });
+let connectionString = database.url;
+if (connectionString.includes('postgres:postgres@supabase_db_')) {
+  const url = new URL(connectionString);
+  url.hostname = url.hostname.split('_')[1] || '';
+  connectionString = url.href;
+}
+
+export const client = postgres(connectionString, { prepare: false });
+const db = drizzle(client);
 
 export default db;
