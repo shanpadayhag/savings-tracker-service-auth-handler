@@ -7,10 +7,14 @@ module.exports = {
     '^@/fixtures/(.*)$': '<rootDir>/tests/fixtures/$1',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  setupFiles: ['dotenv/config'],
+  modulePathIgnorePatterns: [],
   transform: {
     '^.+\\.ts$': ['ts-jest', {
       tsconfig: {
         module: 'commonjs',
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
       }
     }]
   },

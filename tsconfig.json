@@ -36,14 +36,18 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "baseUrl": "./src",
     "paths": {
+      "@/app": [ "app" ],
+      "@/container": [ "container" ],
+      "@/config/*": [ "config/* "],
       "@/core/*": [ "core/*" ],
       "@/infrastructure/*": [ "infrastructure/*" ],
       "@/presentation/*": [ "presentation/*" ],
       "@/shared/*": [ "shared/*" ],
-      "@/config/*": [ "config/* "],
       "@/fixtures/*": ["../tests/fixtures/*"]
     }
   },
