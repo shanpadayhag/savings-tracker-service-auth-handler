@@ -1,12 +1,15 @@
-import container from 'container';
-import express from "express";
+import { Router } from 'express';
+import AuthController from '@/presentation/http/controllers/auth-controller';
 
-const authRoutes = express.Router();
-const authController = container.authController;
+const createAuthRoutes = (authController: AuthController) => {
+  const router = Router();
 
-authRoutes.get("/register", authController.register);
-// authRoutes.post("/login", authController.login);
-// authRoutes.post("/logout", authController.logout);
-// authRoutes.post("/refresh", authController.refresh);
+  router.post('/register', authController.register);
+  // router.post("/login", authController.login);
+  // router.post("/logout", authController.logout);
+  // router.post("/refresh", authController.refresh);
 
-export default authRoutes;
+  return router;
+};
+
+export default createAuthRoutes;
