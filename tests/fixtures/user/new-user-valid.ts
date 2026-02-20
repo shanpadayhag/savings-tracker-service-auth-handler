@@ -4,7 +4,7 @@ const newUserValid: schema.NewUser = {
   firstName: 'John',
   lastName: 'Doe',
   email: 'john@example.com',
-  password: 'hashed',
+  password: 'unhashedpassword',
 };
 
 export default newUserValid;
