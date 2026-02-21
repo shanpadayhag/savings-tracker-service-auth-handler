@@ -1,0 +1,32 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: personalp4qnzwjclr
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+# app: savings-tracker-api
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: st-auth-handler
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    SERVERLESS_ACCESS_KEY: ${env:SERVERLESS_ACCESS_KEY}
+    DATABASE_URL: ${env:DATABASE_URL}
+
+functions:
+  api:
+    handler: src/server.handler
+    events:
+      - httpApi: "*"
+
+useDotenv: true
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-esbuild
+
+custom:
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: false
