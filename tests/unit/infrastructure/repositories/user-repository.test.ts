@@ -1,7 +1,7 @@
 import { describe, jest, beforeEach, it, expect } from '@jest/globals';
 import UserRepository from '@/infrastructure/database/repositories/user-repository';
 import * as schema from '@/infrastructure/database/schema';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
 describe('UserRepository', () => {
   let repository: UserRepository;
@@ -12,7 +12,7 @@ describe('UserRepository', () => {
 
   const mockDB = {
     insert: mockDBInsert,
-  } as unknown as NodePgDatabase<typeof schema>;
+  } as unknown as PostgresJsDatabase;
 
   beforeEach(() => {
     jest.clearAllMocks();
