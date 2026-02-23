@@ -43,7 +43,7 @@
     "paths": {
       "@/app": [ "app" ],
       "@/container": [ "container" ],
-      "@/config/*": [ "config/* "],
+      "@/config/*": [ "config/*" ],
       "@/core/*": [ "core/*" ],
       "@/infrastructure/*": [ "infrastructure/*" ],
       "@/presentation/*": [ "presentation/*" ],
