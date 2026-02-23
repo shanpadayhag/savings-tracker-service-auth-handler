@@ -1,4 +1,4 @@
-import database from 'config/database';
+import database from '@/config/database';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
