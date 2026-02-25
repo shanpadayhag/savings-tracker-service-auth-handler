@@ -47,11 +47,7 @@ describe("Jwt", () => {
     });
 
     it("should throw an error for an expired token", () => {
-      
+
     });
-  });
-
-  describe("decodeToken", () => {
-
   });
 });

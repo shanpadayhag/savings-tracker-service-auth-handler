@@ -32,10 +32,6 @@ class Jwt {
 
     return decoded;
   }
-
-  decodeToken() {
-    //
-  }
 }
 
 export default Jwt;
