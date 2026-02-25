@@ -9,8 +9,8 @@ type SignTokenPayload = {
 };
 
 class Jwt {
-  signToken(payload: SignTokenPayload, tokenType: TokenType) {
-    const tokenTypeIsAccess = tokenType === TokenType.Access;
+  signToken(payload: SignTokenPayload, type: TokenType) {
+    const tokenTypeIsAccess = type === TokenType.Access;
     const secret = tokenTypeIsAccess
       ? jsonWebToken.ACCESS_SECRET
       : jsonWebToken.REFRESH_SECRET;
@@ -21,6 +21,14 @@ class Jwt {
     return jwt.sign(payload, secret, {
       expiresIn: expiresIn as StringValue,
     });
+  }
+
+  verifyToken(value: string, type: TokenType) {
+    //
+  }
+
+  decodeToken() {
+    //
   }
 }
 

@@ -30,7 +30,17 @@ describe("Jwt", () => {
   });
 
   describe("verifyToken", () => {
+    it("should return the decoded payload for a valid token", () => {
+      // arrange
+      const payload = { userID: userValid.id };
+      const token = jwt.signToken(payload, TokenType.Access);
 
+      // act
+      const decoded = jwt.verifyToken(token, TokenType.Access);
+
+      // assert
+      expect(decoded).toMatchObject(payload);
+    });
   });
 
   describe("decodeToken", () => {
