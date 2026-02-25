@@ -24,7 +24,13 @@ class Jwt {
   }
 
   verifyToken(value: string, type: TokenType) {
-    //
+    const secret = type === TokenType.Access
+      ? jsonWebToken.ACCESS_SECRET
+      : jsonWebToken.REFRESH_SECRET;
+
+    const decoded = jwt.verify(value, secret);
+
+    return decoded;
   }
 
   decodeToken() {

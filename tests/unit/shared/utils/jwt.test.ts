@@ -41,6 +41,14 @@ describe("Jwt", () => {
       // assert
       expect(decoded).toMatchObject(payload);
     });
+
+    it("should throw an error when verifying an access token with a refresh secret", () => {
+
+    });
+
+    it("should throw an error for an expired token", () => {
+      
+    });
   });
 
   describe("decodeToken", () => {
