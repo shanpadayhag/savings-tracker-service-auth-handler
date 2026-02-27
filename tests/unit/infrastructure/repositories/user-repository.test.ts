@@ -50,4 +50,14 @@ describe('UserRepository', () => {
       expect(createdUser).toEqual(expectedUser);
     });
   });
+
+  describe("getByEmail", () => {
+    it("should successfuly fetch the user by email", async () => {
+
+    });
+
+    it("should successfuly fetch the user by email", async () => {
+
+    });
+  });
 });
