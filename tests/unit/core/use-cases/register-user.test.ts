@@ -3,12 +3,8 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import * as schema from '@/infrastructure/database/schema';
 import RegisterUser from '@/core/use-cases/register-user';
 import { newUserValid, userValid } from '@/fixtures/user';
+import createUserRepositoryMock from '@/mocks/infrastructure/database/repositories/user-repository.mock';
 import bcrypt from 'bcryptjs';
-
-const createUserRepository = (overrides: Partial<IUserRepository> = {}): IUserRepository => ({
-  create: jest.fn<() => Promise<schema.User>>().mockResolvedValue(userValid),
-  ...overrides,
-});
 
 describe("RegisterUser", () => {
   let useCase: RegisterUser;
@@ -16,7 +12,7 @@ describe("RegisterUser", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    repository = createUserRepository();
+    repository = createUserRepositoryMock();
     useCase = new RegisterUser(repository);
   });
 
