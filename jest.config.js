@@ -5,6 +5,7 @@ module.exports = {
   testMatch: ['**/tests/**/*.test.ts'],
   moduleNameMapper: {
     '^@/fixtures/(.*)$': '<rootDir>/tests/fixtures/$1',
+    '^@/mocks/(.*)$': '<rootDir>/tests/mocks/$1',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   setupFiles: ['dotenv/config'],
