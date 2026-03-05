@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import * as schema from '@/infrastructure/database/schema';
 import RegisterUser from '@/core/use-cases/register-user';
 import { newUserValid, userValid } from '@/fixtures/user';
-import createUserRepositoryMock from '@/mocks/infrastructure/database/repositories/user-repository.mock';
+import createUserRepositoryMock from '@/mocks/user-repository.mock';
 import bcrypt from 'bcryptjs';
 
 describe("RegisterUser", () => {

@@ -1,9 +1,12 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-import RegisterUser from '@/core/use-cases/register-user';
-import { newUserValid, userValid } from '@/fixtures/user';
-import * as schema from '@/infrastructure/database/schema';
-import AuthController from '@/presentation/http/controllers/auth-controller';
 import createApp from '@/app';
+import IUserRepository from '@/core/repositories/user-repository';
+import RegisterUser from '@/core/use-cases/register-user';
+import LoginUser from '@/core/use-cases/login-user';
+import { newUserValid, userValid } from '@/fixtures/user';
+import createUserRepositoryMock from '@/mocks/user-repository.mock';
+import AuthController from '@/presentation/http/controllers/auth-controller';
+import Jwt from '@/shared/utils/jwt';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { type Express } from 'express';
 import request from 'supertest';
 
@@ -11,23 +14,32 @@ jest.mock('@/infrastructure/database/drizzle', () => ({
   default: jest.fn(),
 }));
 
-const createRegisterUser = (overrides: Partial<RegisterUser> = {}): RegisterUser => ({
-  execute: jest.fn<() => Promise<schema.User>>().mockResolvedValue(userValid),
-  ...overrides,
-} as RegisterUser);
-
 describe('AuthController', () => {
   let app: Express;
+  let userRepository: IUserRepository;
+  let jwt: Jwt;
   let registerUser: RegisterUser;
+  let loginUser: LoginUser;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    registerUser = createRegisterUser();
-    app = createApp({ authController: new AuthController(registerUser) });
+    userRepository = createUserRepositoryMock();
+    jwt = new Jwt();
+    registerUser = new RegisterUser(userRepository);
+    jest.spyOn(registerUser, 'execute');
+    loginUser = new LoginUser(userRepository, jwt);
+    app = createApp({
+      authController: new AuthController(
+        registerUser,
+        loginUser,
+      )
+    });
   });
 
   describe('POST /auth/register', () => {
     it('should register the user and return 201', async () => {
+      // arrange
+
       // act
       const res = await request(app)
         .post('/auth/register')

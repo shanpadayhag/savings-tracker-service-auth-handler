@@ -4,12 +4,12 @@ import jsonWebToken from '@/config/json-web-token';
 import jwt from 'jsonwebtoken';
 import type { StringValue } from "ms";
 
-type SignTokenPayload = {
+export type SignTokenPayload = {
   userID: User['id'];
 };
 
 class Jwt {
-  signToken(payload: SignTokenPayload, type: TokenType) {
+  signToken(payload: SignTokenPayload, type: TokenType): string {
     const tokenTypeIsAccess = type === TokenType.Access;
     const secret = tokenTypeIsAccess
       ? jsonWebToken.ACCESS_SECRET
@@ -23,14 +23,14 @@ class Jwt {
     });
   }
 
-  verifyToken(value: string, type: TokenType) {
+  verifyToken(value: string, type: TokenType): SignTokenPayload {
     const secret = type === TokenType.Access
       ? jsonWebToken.ACCESS_SECRET
       : jsonWebToken.REFRESH_SECRET;
 
     const decoded = jwt.verify(value, secret);
 
-    return decoded;
+    return decoded as SignTokenPayload;
   }
 }
 
