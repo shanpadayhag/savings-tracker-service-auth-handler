@@ -9,6 +9,7 @@ import Jwt from '@/shared/utils/jwt';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { type Express } from 'express';
 import request from 'supertest';
+import TokenType from '@/shared/enums/token-type';
 
 jest.mock('@/infrastructure/database/drizzle', () => ({
   default: jest.fn(),
@@ -28,6 +29,7 @@ describe('AuthController', () => {
     registerUser = new RegisterUser(userRepository);
     jest.spyOn(registerUser, 'execute');
     loginUser = new LoginUser(userRepository, jwt);
+    jest.spyOn(loginUser, 'execute');
     app = createApp({
       authController: new AuthController(
         registerUser,
@@ -54,6 +56,32 @@ describe('AuthController', () => {
       });
       expect(registerUser.execute).toHaveBeenCalledWith(newUserValid);
       expect(registerUser.execute).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('POST /auth/login', () => {
+    it('should register the user and return 201', async () => {
+      // arrange
+
+      // act
+      const res = await request(app)
+        .post('/auth/login')
+        .send({
+          email: newUserValid.email,
+          password: newUserValid.password,
+        });
+
+      // assert
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual({
+        ...userValid,
+        password: undefined,
+        createdAt: userValid.createdAt.toISOString(),
+        updatedAt: userValid.updatedAt.toISOString(),
+        accessToken: jwt.signToken({ userID: userValid.id }, TokenType.Access)
+      });
+      expect(loginUser.execute).toHaveBeenCalledWith(newUserValid.email, newUserValid.password);
+      expect(loginUser.execute).toHaveBeenCalledTimes(1);
     });
   });
 });
